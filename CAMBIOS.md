@@ -67,6 +67,10 @@ Planificador personal (PWA Angular + FastAPI + PostgreSQL) para trabajo, univers
 
 ## Historial
 
+### 2026-08-26 — Autocompletar correo en Entrar
+
+- En Entrar, el campo Correo tiene `autocomplete="on"` y no lo apaga la directiva anti-autofill.
+
 ### 2026-08-26 — Horas en iPhone
 
 - Inicio/Fin (`type=time` y `date`) ya no tienen ancho mínimo fijo. En iPhone 12 mini caben en Trabajo, Cursos y Ejercicio.

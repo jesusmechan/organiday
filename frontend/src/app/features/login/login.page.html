@@ -44,7 +44,7 @@
 
     <form class="form" autocomplete="off" (submit)="$event.preventDefault(); submit()">
       <div class="autofill-trap" aria-hidden="true">
-        <input class="autofill-bait" type="text" name="mpp-user" autocomplete="username" tabindex="-1">
+        <input class="autofill-bait" type="text" name="mpp-user" autocomplete="off" tabindex="-1">
         <input class="autofill-bait" type="password" name="mpp-pass" autocomplete="new-password" tabindex="-1">
       </div>
       @if (mode() === 'register') {
@@ -55,7 +55,7 @@
       }
       <label class="field">
         <span>Correo</span>
-        <input autocomplete="off" type="text" inputmode="email" name="od-email" [(ngModel)]="email" placeholder="tu@correo.com">
+        <input class="allow-autofill" autocomplete="on" type="text" inputmode="email" name="od-email" [(ngModel)]="email" placeholder="tu@correo.com">
       </label>
       <label class="field">
         <span>Contraseña</span>
