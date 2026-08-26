@@ -28,11 +28,11 @@
       <div class="control-row">
         <label class="field">
           <span>Desde</span>
-          <input autocomplete="off" type="date" [(ngModel)]="draft.startDate" name="startDate" required (change)="suggest()">
+          <app-date-field [(ngModel)]="draft.startDate" name="startDate" [required]="true" label="Desde" (ngModelChange)="suggest()" />
         </label>
         <label class="field">
           <span>Hasta</span>
-          <input autocomplete="off" type="date" [(ngModel)]="draft.endDate" name="endDate" required>
+          <app-date-field [(ngModel)]="draft.endDate" name="endDate" [required]="true" label="Hasta" />
         </label>
       </div>
       <div class="mode-row">
@@ -106,20 +106,16 @@
               <div class="work-row">
                 <b>{{ labels[day.dayOfWeek] }}</b>
                 <div class="times">
-                  <input
-                    autocomplete="off"
-                    type="time"
+                  <app-time-field
                     [(ngModel)]="day.start"
                     [name]="'work-s-' + day.dayOfWeek"
-                    [attr.aria-label]="'Inicio ' + labels[day.dayOfWeek]"
-                  >
-                  <input
-                    autocomplete="off"
-                    type="time"
+                    [label]="'Inicio ' + labels[day.dayOfWeek]"
+                  />
+                  <app-time-field
                     [(ngModel)]="day.end"
                     [name]="'work-e-' + day.dayOfWeek"
-                    [attr.aria-label]="'Fin ' + labels[day.dayOfWeek]"
-                  >
+                    [label]="'Fin ' + labels[day.dayOfWeek]"
+                  />
                 </div>
               </div>
             }
@@ -185,11 +181,11 @@
                         <div class="times">
                           <label class="field">
                             <span>Inicio</span>
-                            <input autocomplete="off" type="time" [(ngModel)]="session.start" [name]="'ss-' + courseIndex(course) + '-' + $index">
+                            <app-time-field [(ngModel)]="session.start" [name]="'ss-' + courseIndex(course) + '-' + $index" label="Inicio" />
                           </label>
                           <label class="field">
                             <span>Fin</span>
-                            <input autocomplete="off" type="time" [(ngModel)]="session.end" [name]="'se-' + courseIndex(course) + '-' + $index">
+                            <app-time-field [(ngModel)]="session.end" [name]="'se-' + courseIndex(course) + '-' + $index" label="Fin" />
                           </label>
                         </div>
                         <label class="field loc">
@@ -260,20 +256,16 @@
             @if (ex.enabled) {
               <div class="ex-row">
                 <b>{{ labels[ex.dayOfWeek] }}</b>
-                <input
-                  autocomplete="off"
-                  type="time"
+                <app-time-field
                   [(ngModel)]="ex.start"
                   [name]="'exs-' + ex.dayOfWeek"
-                  [attr.aria-label]="'Inicio ' + labels[ex.dayOfWeek]"
-                >
-                <input
-                  autocomplete="off"
-                  type="time"
+                  [label]="'Inicio ' + labels[ex.dayOfWeek]"
+                />
+                <app-time-field
                   [(ngModel)]="ex.end"
                   [name]="'exe-' + ex.dayOfWeek"
-                  [attr.aria-label]="'Fin ' + labels[ex.dayOfWeek]"
-                >
+                  [label]="'Fin ' + labels[ex.dayOfWeek]"
+                />
                 <select [(ngModel)]="ex.type" [name]="'extype-' + ex.dayOfWeek" [attr.aria-label]="'Tipo ' + labels[ex.dayOfWeek]">
                   <option value="workout">Gym</option>
                   <option value="walk">Caminata</option>

@@ -163,8 +163,8 @@
         </select>
         <input autocomplete="off" [(ngModel)]="exTitle" name="exTitle" placeholder="Título" required>
         <div class="control-row">
-          <input autocomplete="off" type="time" [(ngModel)]="exStart" name="exStart">
-          <input autocomplete="off" type="time" [(ngModel)]="exEnd" name="exEnd">
+          <app-time-field [(ngModel)]="exStart" name="exStart" label="Inicio" />
+          <app-time-field [(ngModel)]="exEnd" name="exEnd" label="Fin" />
         </div>
         <button class="btn small" type="submit">Guardar excepción</button>
       </form>

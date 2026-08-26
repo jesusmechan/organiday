@@ -1,0 +1,29 @@
+<div class="time-field" [class.disabled]="disabled">
+  <select
+    class="part"
+    [value]="hour"
+    [disabled]="disabled"
+    [attr.aria-label]="(label() || 'Hora') + ', horas'"
+    (blur)="onTouched()"
+    (change)="setHour($any($event.target).value)"
+  >
+    <option value="">––</option>
+    @for (h of hours; track h) {
+      <option [value]="h">{{ h }}</option>
+    }
+  </select>
+  <span class="colon" aria-hidden="true">:</span>
+  <select
+    class="part"
+    [value]="minute"
+    [disabled]="disabled"
+    [attr.aria-label]="(label() || 'Hora') + ', minutos'"
+    (blur)="onTouched()"
+    (change)="setMinute($any($event.target).value)"
+  >
+    <option value="">––</option>
+    @for (m of minutes; track m) {
+      <option [value]="m">{{ m }}</option>
+    }
+  </select>
+</div>

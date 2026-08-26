@@ -67,6 +67,11 @@ Planificador personal (PWA Angular + FastAPI + PostgreSQL) para trabajo, univers
 
 ## Historial
 
+### 2026-08-26 — Selector de hora y fecha
+
+- En iPhone el `input type=time` nativo no cabe (muestra 8:00 a. m.). Inicio/Fin usan hora y minuto en selects.
+- Las fechas (ciclo, tareas) muestran `dd/mm/aaaa` y ya no desbordan la tarjeta.
+
 ### 2026-08-26 — Autocompletar correo en Entrar
 
 - En Entrar, el campo Correo tiene `autocomplete="on"` y no lo apaga la directiva anti-autofill.

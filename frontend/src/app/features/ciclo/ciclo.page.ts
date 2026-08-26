@@ -9,12 +9,13 @@ import { downloadText } from '../../core/utils/export';
 import { formatDateRange, isoDate, termStatus } from '../../core/utils/time';
 import { Term } from '../../core/models/planner.models';
 import { ConfirmModalComponent } from '../../shared/confirm-modal/confirm-modal.component';
+import { DateFieldComponent } from '../../shared/date-field/date-field.component';
 
 type ModalKind = 'delete-term' | 'delete-all' | null;
 
 @Component({
   selector: 'app-ciclo-page',
-  imports: [FormsModule, RouterLink, DisableAutocompleteDirective, ConfirmModalComponent],
+  imports: [FormsModule, RouterLink, DisableAutocompleteDirective, ConfirmModalComponent, DateFieldComponent],
   templateUrl: './ciclo.page.html',
   styleUrl: './ciclo.page.scss'
 })

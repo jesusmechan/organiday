@@ -2,13 +2,14 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { DisableAutocompleteDirective } from '../../core/directives/disable-autocomplete.directive';
+import { DateFieldComponent } from '../../shared/date-field/date-field.component';
 import { PlannerStore } from '../../core/services/planner.store';
 import { DAY_LABELS, MODALITY_LABELS, PRIORITY_LABELS, TOPIC_LABELS } from '../../core/utils/time';
 import { Priority, TopicKind } from '../../core/models/planner.models';
 
 @Component({
   selector: 'app-tasks-page',
-  imports: [FormsModule, RouterLink, DisableAutocompleteDirective],
+  imports: [FormsModule, RouterLink, DisableAutocompleteDirective, DateFieldComponent],
   templateUrl: './tasks.page.html',
   styleUrl: './tasks.page.scss'
 })

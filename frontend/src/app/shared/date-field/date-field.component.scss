@@ -1,0 +1,61 @@
+:host {
+  display: block;
+  min-width: 0;
+  width: 100%;
+}
+
+.date-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: var(--control-h);
+  min-width: 0;
+  overflow: hidden;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.date-field:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.date-field.disabled {
+  background: #f3f5f8;
+  color: var(--muted);
+}
+
+.date-field.empty .face {
+  color: #8a96a8;
+}
+
+.face {
+  pointer-events: none;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.native {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0.02;
+  font-size: 16px;
+  background: transparent;
+  appearance: none;
+  cursor: pointer;
+}
+
+.native:focus {
+  outline: 0;
+  box-shadow: none;
+}

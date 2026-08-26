@@ -13,13 +13,15 @@ import {
   WorkDaySpec
 } from '../../core/services/schedule.generator';
 import { DisableAutocompleteDirective } from '../../core/directives/disable-autocomplete.directive';
+import { DateFieldComponent } from '../../shared/date-field/date-field.component';
+import { TimeFieldComponent } from '../../shared/time-field/time-field.component';
 import { findScheduleConflicts } from '../../core/utils/schedule-conflicts';
 import { asDayOfWeek, DAY_LABELS, DAY_SHORT, EXERCISE_TYPE_LABELS, MODALITY_LABELS, WEEK_ORDER } from '../../core/utils/time';
 import { DayOfWeek } from '../../core/models/planner.models';
 
 @Component({
   selector: 'app-schedule-builder-page',
-  imports: [FormsModule, RouterLink, DisableAutocompleteDirective],
+  imports: [FormsModule, RouterLink, DisableAutocompleteDirective, DateFieldComponent, TimeFieldComponent],
   templateUrl: './schedule-builder.page.html',
   styleUrl: './schedule-builder.page.scss'
 })

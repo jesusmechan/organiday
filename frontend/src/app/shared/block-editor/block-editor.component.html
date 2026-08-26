@@ -17,11 +17,11 @@
       <div class="control-row">
         <label class="field">
           <span>Inicio</span>
-          <input autocomplete="off" type="time" [(ngModel)]="start" name="blockStart" required>
+          <app-time-field [(ngModel)]="start" name="blockStart" [label]="'Inicio'" />
         </label>
         <label class="field">
           <span>Fin</span>
-          <input autocomplete="off" type="time" [(ngModel)]="end" name="blockEnd" required>
+          <app-time-field [(ngModel)]="end" name="blockEnd" [label]="'Fin'" />
         </label>
       </div>
       <label class="field">

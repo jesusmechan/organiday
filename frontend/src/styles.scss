@@ -710,6 +710,51 @@ a {
   flex-shrink: 0;
 }
 
+app-time-field,
+app-date-field {
+  display: block;
+  min-width: 0;
+  width: 100%;
+}
+
+.form app-time-field select {
+  appearance: none;
+  width: auto;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  background-color: transparent;
+  background-image: none;
+  padding: 0 4px;
+  box-shadow: none;
+}
+
+.form app-time-field select:focus {
+  outline: 0;
+  border: 0;
+  box-shadow: none;
+}
+
+.form app-date-field input.native[type='date'] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  max-width: 100%;
+  padding: 0;
+  border: 0;
+  opacity: 0.02;
+  background: transparent;
+  box-shadow: none;
+}
+
+.form app-date-field input.native[type='date']:focus {
+  outline: 0;
+  box-shadow: none;
+}
+
 .form input[type='number'] {
   appearance: textfield;
 }

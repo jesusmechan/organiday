@@ -1,0 +1,60 @@
+:host {
+  display: block;
+  min-width: 0;
+  width: 100%;
+}
+
+.time-field {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: var(--control-h);
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #ffffff;
+}
+
+.time-field:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.time-field.disabled {
+  background: #f3f5f8;
+  color: var(--muted);
+}
+
+.part {
+  display: block;
+  flex: 1 1 0;
+  min-width: 0;
+  width: auto;
+  height: 100%;
+  margin: 0;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  background-image: none;
+  color: inherit;
+  font-size: 16px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  appearance: none;
+  box-shadow: none;
+}
+
+.part:focus {
+  outline: 0;
+  border: 0;
+  box-shadow: none;
+}
+
+.colon {
+  flex: 0 0 auto;
+  font-weight: 800;
+  color: var(--muted);
+  line-height: 1;
+}

@@ -6,6 +6,7 @@ import { DayOfWeek, ExceptionKind, TimeBlock } from '../../core/models/planner.m
 import { BlockEditorComponent } from '../../shared/block-editor/block-editor.component';
 import { BlockEditorSave } from '../../shared/block-editor/block-editor.model';
 import { DisableAutocompleteDirective } from '../../core/directives/disable-autocomplete.directive';
+import { TimeFieldComponent } from '../../shared/time-field/time-field.component';
 import { downloadText, weekToIcs } from '../../core/utils/export';
 import {
   addMonths,
@@ -29,7 +30,7 @@ import {
 
 @Component({
   selector: 'app-week-page',
-  imports: [RouterLink, FormsModule, BlockEditorComponent, DisableAutocompleteDirective],
+  imports: [RouterLink, FormsModule, BlockEditorComponent, DisableAutocompleteDirective, TimeFieldComponent],
   templateUrl: './week.page.html',
   styleUrl: './week.page.scss'
 })

@@ -1,0 +1,14 @@
+<div class="date-field" [class.disabled]="disabled" [class.empty]="!value">
+  <span class="face">{{ display || 'Fecha' }}</span>
+  <input
+    class="native"
+    type="date"
+    lang="es"
+    [value]="value"
+    [disabled]="disabled"
+    [required]="required()"
+    [attr.aria-label]="label() || 'Fecha'"
+    (blur)="onTouched()"
+    (change)="setValue($any($event.target).value)"
+  >
+</div>

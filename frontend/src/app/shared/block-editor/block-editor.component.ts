@@ -2,11 +2,12 @@ import { Component, HostListener, OnInit, input, output, signal } from '@angular
 import { FormsModule } from '@angular/forms';
 import { TimeBlock } from '../../core/models/planner.models';
 import { DisableAutocompleteDirective } from '../../core/directives/disable-autocomplete.directive';
+import { TimeFieldComponent } from '../time-field/time-field.component';
 import { BlockEditorSave } from './block-editor.model';
 
 @Component({
   selector: 'app-block-editor',
-  imports: [FormsModule, DisableAutocompleteDirective],
+  imports: [FormsModule, DisableAutocompleteDirective, TimeFieldComponent],
   templateUrl: './block-editor.component.html',
   styleUrl: './block-editor.component.scss'
 })

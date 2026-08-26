@@ -43,7 +43,7 @@
           <option value="medium">Media</option>
           <option value="low">Baja</option>
         </select>
-        <input autocomplete="off" type="date" [(ngModel)]="deadline" name="deadline">
+        <app-date-field [(ngModel)]="deadline" name="deadline" label="Fecha límite" />
         <input autocomplete="off" type="number" min="0.5" step="0.5" [(ngModel)]="estimatedHours" name="hours" placeholder="Horas">
       </div>
       <div class="actions">
@@ -74,7 +74,7 @@
           <option value="assignment">Práctica / entrega</option>
           <option value="topic">Tema</option>
         </select>
-        <input autocomplete="off" type="date" [(ngModel)]="topicDue" name="topicDue" required>
+        <app-date-field [(ngModel)]="topicDue" name="topicDue" [required]="true" label="Fecha" />
       </div>
       <button class="btn" type="submit">Guardar</button>
     </form>

@@ -97,11 +97,11 @@
           <div class="control-row">
             <label class="field">
               <span>Desde</span>
-              <input autocomplete="off" type="date" [(ngModel)]="editStart" name="editStart" required>
+              <app-date-field [(ngModel)]="editStart" name="editStart" [required]="true" label="Desde" />
             </label>
             <label class="field">
               <span>Hasta</span>
-              <input autocomplete="off" type="date" [(ngModel)]="editEnd" name="editEnd" required>
+              <app-date-field [(ngModel)]="editEnd" name="editEnd" [required]="true" label="Hasta" />
             </label>
           </div>
           <div class="edit-actions">
