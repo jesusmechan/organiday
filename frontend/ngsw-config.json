@@ -40,5 +40,10 @@
         "strategy": "performance"
       }
     }
+  ],
+  "navigationUrls": [
+    "/**",
+    "!/**/*.*",
+    "!/api/**"
   ]
 }

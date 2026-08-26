@@ -1,4 +1,4 @@
-@if (!auth.user()) {
+@if (!auth.isLoggedIn()) {
   <main class="page guest">
     <router-outlet />
   </main>

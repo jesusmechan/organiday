@@ -67,6 +67,11 @@ Planificador personal (PWA Angular + FastAPI/SQLite) para trabajo, universidad, 
 
 ## Historial
 
+### 2026-08-26 — Sesión al recargar
+
+- Recargar ya no borra la sesión si `/auth/me` falla un momento (Render dormido o red). El interceptor sigue cerrando solo si el refresh no vale.
+- El service worker no trata `/api` como navegación de la PWA.
+
 ### 2026-08-26 — PWA en Render (JS/CSS)
 
 - Los archivos `.js` y `.css` de la PWA se sirven con el tipo MIME correcto. Si no, el navegador deja la pantalla en blanco aunque `/api/health` funcione.

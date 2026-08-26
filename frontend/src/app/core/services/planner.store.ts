@@ -57,10 +57,10 @@ export class PlannerStore {
 
   constructor() {
     effect(() => {
-      if (this.auth.user()) {
-        void this.refresh();
-        return;
-      }
+    if (this.auth.isLoggedIn()) {
+      void this.refresh();
+      return;
+    }
       this.state.set(createEmptyState());
       this.offline.set(false);
       this.loading.set(false);

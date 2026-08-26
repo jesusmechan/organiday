@@ -87,14 +87,19 @@ export class AuthService {
       this.user.set(user);
       this.persist();
     } catch {
-      this.clearSession();
+      // Si /me falla (Render dormido, red, 502), no borres la sesión local.
+      // Un 401 real ya lo resuelve el interceptor (refresh o logout).
     }
   }
 
-  private apply(payload: AuthSession): void {
-    this.token.set(payload.accessToken);
-    this.refreshToken.set(payload.refreshToken);
-    this.user.set(payload.user);
+  private apply(payload: AuthSession | Record<string, unknown>): void {
+    const session = this.normalize(payload);
+    if (!session) {
+      throw new Error('La sesión no se pudo guardar.');
+    }
+    this.token.set(session.accessToken);
+    this.refreshToken.set(session.refreshToken);
+    this.user.set(session.user);
     this.persist();
   }
 
@@ -116,9 +121,21 @@ export class AuthService {
 
   private parse(raw: string | null): AuthSession | null {
     if (!raw) return null;
-    const parsed = JSON.parse(raw) as Partial<AuthSession> | null;
-    if (!parsed?.accessToken || !parsed?.refreshToken || !parsed?.user?.id) return null;
-    return parsed as AuthSession;
+    try {
+      return this.normalize(JSON.parse(raw));
+    } catch {
+      return null;
+    }
+  }
+
+  private normalize(raw: unknown): AuthSession | null {
+    if (!raw || typeof raw !== 'object') return null;
+    const data = raw as Record<string, unknown>;
+    const accessToken = String(data['accessToken'] ?? data['access_token'] ?? '');
+    const refreshToken = String(data['refreshToken'] ?? data['refresh_token'] ?? '');
+    const user = data['user'] as AuthUser | undefined;
+    if (!accessToken || !refreshToken || !user?.id) return null;
+    return { accessToken, refreshToken, user };
   }
 
   private onStorage(event: StorageEvent): void {
