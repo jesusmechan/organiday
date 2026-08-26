@@ -1,0 +1,157 @@
+<section class="ciclo-head">
+  <div>
+    <p class="kicker">Tu matrícula</p>
+    <h1>Ciclos</h1>
+  </div>
+  @if (terms().length) {
+    <a routerLink="/nuevo-horario" class="btn">Nuevo ciclo</a>
+  }
+</section>
+
+@if (!terms().length) {
+  <article class="empty-stage">
+    <p class="kicker">Aún vacío</p>
+    <h2>Crea el primer ciclo</h2>
+    <p class="muted">Fechas, cursos, trabajo y ejercicio. El horario se arma a partir de eso.</p>
+    <a routerLink="/nuevo-horario" class="btn">Empezar</a>
+  </article>
+} @else {
+  @if (terms().length > 1) {
+    <div class="cycle-rail" role="list">
+      @for (term of terms(); track term.id) {
+        <button
+          type="button"
+          class="rail-item"
+          role="listitem"
+          [class.active]="viewed()?.id === term.id"
+          (click)="select(term.id)"
+        >
+          <span class="rail-status">{{ statusLabel(term) }}</span>
+          <span class="rail-name">{{ term.name }}</span>
+          <span class="rail-range">{{ formatRange(term.startDate, term.endDate) }}</span>
+        </button>
+      }
+    </div>
+  }
+
+  @if (viewed(); as term) {
+    <div class="ciclo-board">
+      <article class="cycle-stage">
+        <div class="stage-top">
+          <span
+            class="status-chip"
+            [class.current]="statusKind(term) === 'current'"
+            [class.upcoming]="statusKind(term) === 'upcoming'"
+            [class.past]="statusKind(term) === 'past'"
+          >{{ statusLabel(term) }}</span>
+          @if (live() && live()?.id !== term.id) {
+            <span class="muted">Hoy corre {{ live()?.name }}</span>
+          }
+        </div>
+        <h2>{{ term.name }}</h2>
+        <p class="range">{{ prettyDate(term.startDate) }} → {{ prettyDate(term.endDate) }}</p>
+
+        <div class="span">
+          <div class="span-track" [style.--p]="progressOf(term) + '%'">
+            <i></i>
+          </div>
+          <div class="span-labels">
+            <span>{{ progressOf(term) }}%</span>
+            <span>{{ remainingLabel(term) }}</span>
+          </div>
+        </div>
+
+        <div class="hero-stats">
+          <div>
+            <b>{{ counts().blocks }}</b>
+            <span>bloques</span>
+          </div>
+          <div>
+            <b>{{ counts().courses }}</b>
+            <span>cursos</span>
+          </div>
+          <div>
+            <b>{{ counts().tasks }}</b>
+            <span>tareas</span>
+          </div>
+        </div>
+
+        <div class="hero-actions">
+          <button class="btn" type="button" (click)="askUpdate()">Actualizar horario</button>
+          <button class="btn ghost" type="button" (click)="copyCycle()">Copiar ciclo</button>
+        </div>
+      </article>
+
+      <article class="edit-panel">
+        <h3>Datos del ciclo</h3>
+        <p class="muted intro">Cambia el nombre o las fechas sin regenerar el horario.</p>
+        <form class="form" autocomplete="off" (submit)="$event.preventDefault(); saveDates()">
+          <div class="autofill-trap" aria-hidden="true">
+            <input class="autofill-bait" type="text" name="mpp-user" autocomplete="username" tabindex="-1">
+            <input class="autofill-bait" type="password" name="mpp-pass" autocomplete="new-password" tabindex="-1">
+          </div>
+          <label class="field">
+            <span>Nombre</span>
+            <input autocomplete="off" [(ngModel)]="editName" name="cycleEditLabel" required>
+          </label>
+          <div class="control-row">
+            <label class="field">
+              <span>Desde</span>
+              <input autocomplete="off" type="date" [(ngModel)]="editStart" name="editStart" required>
+            </label>
+            <label class="field">
+              <span>Hasta</span>
+              <input autocomplete="off" type="date" [(ngModel)]="editEnd" name="editEnd" required>
+            </label>
+          </div>
+          <div class="edit-actions">
+            <button class="btn" type="submit">Guardar cambios</button>
+          </div>
+        </form>
+      </article>
+    </div>
+  }
+
+  <section class="toolbox">
+    <button class="tool-btn" type="button" (click)="exportBackup()">
+      <span class="tool-label">Respaldo</span>
+      <span class="tool-action">Descargar JSON</span>
+    </button>
+    <label class="tool-btn">
+      <span class="tool-label">Restaurar</span>
+      <span class="tool-action">Subir archivo</span>
+      <input type="file" accept="application/json" hidden (change)="importBackup($event)">
+    </label>
+    <button class="tool-btn" type="button" [class.on]="remindersOn()" (click)="toggleReminders()">
+      <span class="tool-label">Avisos</span>
+      <span class="tool-action">{{ remindersOn() ? 'Encendidos' : 'Activar' }}</span>
+    </button>
+  </section>
+
+  <footer class="danger-foot">
+    <div>
+      <b>Zona peligrosa</b>
+      <p>Borrar un ciclo o vaciar el planificador no se puede deshacer.</p>
+    </div>
+    <div class="danger-actions">
+      @if (viewed(); as term) {
+        <button type="button" (click)="askRemove(term)">Eliminar este ciclo</button>
+      }
+      <button type="button" (click)="askClearAll()">Eliminar todo</button>
+    </div>
+  </footer>
+}
+
+@if (modal()) {
+  <app-confirm-modal
+    kicker="Atención"
+    [title]="modalTitle()"
+    [message]="modalMessage()"
+    [items]="modalItems()"
+    [confirmLabel]="modalConfirm()"
+    [danger]="true"
+    [busy]="busy()"
+    (confirmed)="confirmModal()"
+    (cancelled)="closeModal()"
+  />
+}

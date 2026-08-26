@@ -1,0 +1,161 @@
+<section class="page-head">
+  <div>
+    <p class="kicker">Motor de planificación</p>
+    <h1>Tareas y estudio</h1>
+    <p class="muted">Marca lo que ya cerraste. El motor sugiere cuándo estudiar el resto.</p>
+  </div>
+  @if (term()) {
+    <div class="actions">
+      <button class="btn" (click)="showForm.set(!showForm())">Nueva tarea</button>
+      <button class="btn ghost" (click)="showTopic.set(!showTopic())">Tema o examen</button>
+    </div>
+  }
+</section>
+
+@if (!term()) {
+  <article class="card hero">
+    <div>
+      <p class="kicker">Empezar</p>
+      <h2>Aún no hay ciclo ni tareas</h2>
+      <p class="muted">Genera un horario primero. Después podrás añadir tareas de estudio.</p>
+    </div>
+    <a routerLink="/nuevo-horario" class="btn">Generar horario</a>
+  </article>
+} @else {
+@if (showForm()) {
+  <article class="card" style="margin-bottom: 16px">
+    <h3>Nueva tarea</h3>
+    <form class="form" autocomplete="off" (submit)="$event.preventDefault(); add()">
+      <div class="autofill-trap" aria-hidden="true">
+        <input class="autofill-bait" type="text" name="mpp-user" autocomplete="username" tabindex="-1">
+        <input class="autofill-bait" type="password" name="mpp-pass" autocomplete="new-password" tabindex="-1">
+      </div>
+      <input autocomplete="off" [(ngModel)]="title" name="taskTitle" placeholder="Ej. Estudiar 3 horas esta semana" required>
+      <select [(ngModel)]="courseId" name="courseId">
+        <option value="">Sin curso</option>
+        @for (course of courses(); track course.id) {
+          <option [value]="course.id">{{ course.name }} · {{ modality[course.modality] }}</option>
+        }
+      </select>
+      <div class="control-row">
+        <select [(ngModel)]="priority" name="priority">
+          <option value="high">Alta</option>
+          <option value="medium">Media</option>
+          <option value="low">Baja</option>
+        </select>
+        <input autocomplete="off" type="date" [(ngModel)]="deadline" name="deadline">
+        <input autocomplete="off" type="number" min="0.5" step="0.5" [(ngModel)]="estimatedHours" name="hours" placeholder="Horas">
+      </div>
+      <div class="actions">
+        <button class="btn" type="submit">Guardar</button>
+      </div>
+    </form>
+  </article>
+}
+
+@if (showTopic()) {
+  <article class="card" style="margin-bottom: 16px">
+    <h3>Tema, práctica o examen</h3>
+    <form class="form" autocomplete="off" (submit)="$event.preventDefault(); addTopic()">
+      <div class="autofill-trap" aria-hidden="true">
+        <input class="autofill-bait" type="text" name="mpp-user" autocomplete="username" tabindex="-1">
+        <input class="autofill-bait" type="password" name="mpp-pass" autocomplete="new-password" tabindex="-1">
+      </div>
+      <input autocomplete="off" [(ngModel)]="topicTitle" name="topicTitle" placeholder="Ej. Parcial 1" required>
+      <select [(ngModel)]="topicCourseId" name="topicCourseId" required>
+        <option value="">Curso</option>
+        @for (course of courses(); track course.id) {
+          <option [value]="course.id">{{ course.name }}</option>
+        }
+      </select>
+      <div class="control-row">
+        <select [(ngModel)]="topicKind" name="topicKind">
+          <option value="exam">Examen</option>
+          <option value="assignment">Práctica / entrega</option>
+          <option value="topic">Tema</option>
+        </select>
+        <input autocomplete="off" type="date" [(ngModel)]="topicDue" name="topicDue" required>
+      </div>
+      <button class="btn" type="submit">Guardar</button>
+    </form>
+  </article>
+}
+
+<div class="grid grid-2">
+  <article class="card">
+    <h2>Pendientes</h2>
+    @for (task of tasks(); track task.id) {
+      <div class="task" [class.done]="task.completed">
+        <div class="task-main">
+          <button type="button" class="check" [class.on]="task.completed" (click)="toggle(task.id)" [attr.aria-label]="'Marcar ' + task.title">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div>
+            <b [class.done-title]="task.completed">{{ task.title }}</b>
+            <div class="meta muted">
+              {{ courseName(task.courseId) }} ·
+              <span [class]="'priority-' + task.priority">{{ labels[task.priority] }}</span>
+              @if (task.deadline) { · vence {{ task.deadline }} }
+            </div>
+          </div>
+          <button class="btn ghost small" (click)="remove(task.id)">Quitar</button>
+        </div>
+        <div class="progress"><i [style.width.%]="progress(task.loggedMinutes, task.estimatedMinutes)"></i></div>
+        <div class="row">
+          <span class="muted">{{ task.loggedMinutes }} / {{ task.estimatedMinutes }} min</span>
+          <button class="btn ghost small" (click)="log(task.id, 30)">+30 min</button>
+          <button class="btn ghost small" (click)="log(task.id, 60)">+1 h</button>
+        </div>
+      </div>
+    } @empty {
+      <p class="empty">No hay tareas. Crea las que quieras seguir.</p>
+    }
+  </article>
+
+  <article class="card">
+    <h2>Horarios sugeridos</h2>
+    <p class="muted">Prioridad alta primero. El motor busca huecos de 45 minutos o más.</p>
+    @if (suggestions().length === 0) {
+      <p class="empty">No hay sugerencias. O ya cubriste las horas, o no hay huecos sanos.</p>
+    } @else {
+      @for (item of suggestions(); track item.taskId + item.start + item.dayOfWeek) {
+        <div class="block plain study" style="margin-top:12px">
+          <div class="time">{{ days[item.dayOfWeek] }}<br>{{ item.start }}</div>
+          <div>
+            <div class="title">{{ item.taskTitle }}</div>
+            <div class="meta">{{ item.minutes }} min · {{ item.reason }}</div>
+            <button class="btn small" style="margin-top:8px" (click)="accept(item.taskId, item.dayOfWeek, item.start, item.end, item.taskTitle)">
+              Meter al horario
+            </button>
+          </div>
+        </div>
+      }
+    }
+  </article>
+</div>
+
+<article class="card" style="margin-top: 16px">
+  <h2>Temas y exámenes</h2>
+  <p class="muted">Aparecen en Semana el día que vencen.</p>
+  @for (topic of topics(); track topic.id) {
+    <div class="task" [class.done]="topic.done">
+      <div class="task-main">
+        <button type="button" class="check" [class.on]="topic.done" (click)="toggleTopic(topic.id)">
+          <svg viewBox="0 0 24 24" fill="none">
+            <path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <div>
+          <b [class.done-title]="topic.done">{{ topic.title }}</b>
+          <div class="meta muted">{{ topicLabels[topic.kind] }} · {{ courseName(topic.courseId) }} · {{ topic.dueDate }}</div>
+        </div>
+        <button class="btn ghost small" type="button" (click)="removeTopic(topic.id)">Quitar</button>
+      </div>
+    </div>
+  } @empty {
+    <p class="empty">Aún no hay temas ni exámenes.</p>
+  }
+</article>
+}

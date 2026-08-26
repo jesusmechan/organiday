@@ -1,0 +1,124 @@
+<section class="page-head">
+  <div>
+    <p class="kicker">¿Cómo estoy organizando mi semana?</p>
+    <h1>Análisis</h1>
+    <p class="muted">El motor mira carga, huecos y prioridades. No te pide rendir 7 días seguidos.</p>
+  </div>
+  @if (term()) {
+    <button class="btn ghost" (click)="reset()">Vaciar planificador</button>
+  }
+</section>
+
+@if (!term()) {
+  <article class="card hero">
+    <div>
+      <p class="kicker">Empezar</p>
+      <h2>Aún no hay datos que analizar</h2>
+      <p class="muted">Genera un ciclo y empieza a marcar bloques. El análisis usa solo lo que tú cargues.</p>
+    </div>
+    <a routerLink="/nuevo-horario" class="btn">Generar horario</a>
+  </article>
+} @else {
+<article class="card hero" style="margin-bottom: 16px">
+  <div class="ring" [style.--p]="weekTotal().percent">
+    <span>{{ weekTotal().percent }}%</span>
+  </div>
+  <div>
+    <p class="kicker">Checklist de la semana</p>
+    <h2>{{ weekTotal().done }} de {{ weekTotal().total }} bloques</h2>
+    <p class="muted">Así vas marcando lo que realmente hiciste, no solo lo planeado.</p>
+  </div>
+</article>
+
+<article class="card" style="margin-bottom: 16px">
+  <h2>Avance por día</h2>
+  <div class="day-strip" style="margin: 12px 0 0">
+    @for (row of weekChecks(); track row.day) {
+      <div class="day-chip">
+        <b>{{ days[row.day].slice(0, 3) }}</b>
+        <div class="dots">{{ row.done }}/{{ row.total }}</div>
+      </div>
+    }
+  </div>
+</article>
+
+<article class="card" style="margin-bottom: 16px">
+  <h2>Resumen semanal</h2>
+  <div class="stat-grid">
+    <div class="stat">
+      <b>{{ formatHours(summary().workHours) }}</b>
+      <span>Trabajo</span>
+    </div>
+    <div class="stat">
+      <b>{{ formatHours(summary().universityHours) }}</b>
+      <span>Universidad</span>
+    </div>
+    <div class="stat">
+      <b>{{ formatHours(summary().studyHours) }}</b>
+      <span>Estudio personal</span>
+    </div>
+    <div class="stat">
+      <b>{{ formatHours(summary().exerciseHours) }}</b>
+      <span>Ejercicio</span>
+    </div>
+    <div class="stat">
+      <b>{{ formatHours(summary().sleepHours) }}</b>
+      <span>Sueño</span>
+    </div>
+    <div class="stat">
+      <b>{{ formatHours(summary().freeHours) }}</b>
+      <span>Tiempo libre</span>
+    </div>
+  </div>
+</article>
+
+<div class="grid grid-2">
+  <article class="card">
+    <h2>Alertas</h2>
+    @for (day of summary().overloadedDays; track day) {
+      <div class="warn-banner" style="margin-bottom: 12px">
+        <b>Tu {{ days[day] }} está demasiado cargado.</b>
+        <p>Recomendación: no agregues actividades adicionales ese día.</p>
+      </div>
+    }
+    <h3>Ejercicio recomendado</h3>
+    <ul class="list-plain">
+      @for (item of summary().exercisePlan; track item.day) {
+        <li>{{ days[item.day] }} {{ item.start }} · {{ item.label }}</li>
+      } @empty {
+        <li>No hay sesiones de ejercicio en este ciclo.</li>
+      }
+    </ul>
+  </article>
+
+  <article class="card">
+    <h2>Recomendaciones</h2>
+    <ul class="list-plain">
+      @for (rec of summary().recommendations; track rec) {
+        <li>{{ rec }}</li>
+      }
+    </ul>
+  </article>
+</div>
+
+<article class="card" style="margin-top: 16px">
+  <h2>Estudio que sí cabe</h2>
+  <p class="muted">El motor busca huecos de 45 minutos o más según tu horario y tus tareas pendientes.</p>
+  @if (suggestions().length === 0) {
+    <p class="empty">Sin sugerencias nuevas.</p>
+  } @else {
+    @for (item of suggestions(); track item.taskId + item.start + item.dayOfWeek) {
+      <div class="block study" style="margin-top:12px">
+        <div class="time">{{ days[item.dayOfWeek] }}<br>{{ item.start }}–{{ item.end }}</div>
+        <div>
+          <div class="title">{{ item.taskTitle }}</div>
+          <div class="meta">{{ item.reason }}</div>
+          <button class="btn small" style="margin-top:8px" (click)="accept(item.taskId, item.dayOfWeek, item.start, item.end, item.taskTitle)">
+            Agregar al calendario
+          </button>
+        </div>
+      </div>
+    }
+  }
+</article>
+}

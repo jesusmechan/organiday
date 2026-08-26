@@ -1,0 +1,13 @@
+.git
+.cursor
+**/.venv
+**/node_modules
+**/.angular
+**/__pycache__
+**/*.pyc
+frontend/dist
+backend/data
+backend/.venv
+*.db
+agent-transcripts
+**/.env

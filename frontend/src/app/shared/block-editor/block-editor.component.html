@@ -1,0 +1,57 @@
+<div class="modal-backdrop" (click)="cancelled.emit()">
+  <div class="modal-card" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+    <p class="kicker">{{ creating() ? 'Nuevo bloque' : 'Editar bloque' }}</p>
+    <h2>{{ creating() ? 'Agregar al día' : (block()?.title || 'Bloque') }}</h2>
+    @if (dateLabel()) {
+      <p class="muted">{{ dateLabel() }}</p>
+    }
+    <form class="form" autocomplete="off" (submit)="$event.preventDefault(); save()">
+      <div class="autofill-trap" aria-hidden="true">
+        <input class="autofill-bait" type="text" name="mpp-user" autocomplete="username" tabindex="-1">
+        <input class="autofill-bait" type="password" name="mpp-pass" autocomplete="new-password" tabindex="-1">
+      </div>
+      <label class="field">
+        <span>Título</span>
+        <input autocomplete="off" [(ngModel)]="title" name="blockTitle" required>
+      </label>
+      <div class="control-row">
+        <label class="field">
+          <span>Inicio</span>
+          <input autocomplete="off" type="time" [(ngModel)]="start" name="blockStart" required>
+        </label>
+        <label class="field">
+          <span>Fin</span>
+          <input autocomplete="off" type="time" [(ngModel)]="end" name="blockEnd" required>
+        </label>
+      </div>
+      <label class="field">
+        <span>Lugar</span>
+        <input autocomplete="off" [(ngModel)]="location" name="blockLoc" placeholder="Opcional">
+      </label>
+      <label class="field">
+        <span>Nota</span>
+        <input autocomplete="off" [(ngModel)]="notes" name="blockNotes" placeholder="Opcional">
+      </label>
+      @if (!creating()) {
+        <div class="mode-row">
+          <label class="choice">
+            <input autocomplete="off" type="radio" name="scope" [(ngModel)]="scope" value="once">
+            <span>Solo este día</span>
+          </label>
+          <label class="choice">
+            <input autocomplete="off" type="radio" name="scope" [(ngModel)]="scope" value="always">
+            <span>Todas las semanas</span>
+          </label>
+        </div>
+      }
+      <div class="actions" style="margin-top: 16px">
+        <button class="btn ghost" type="button" (click)="cancelled.emit()">Cancelar</button>
+        @if (!creating()) {
+          <button class="btn ghost" type="button" (click)="skipped.emit()">Ocultar hoy</button>
+          <button class="btn ghost" type="button" (click)="deleted.emit()">Quitar</button>
+        }
+        <button class="btn" type="submit">Guardar</button>
+      </div>
+    </form>
+  </div>
+</div>

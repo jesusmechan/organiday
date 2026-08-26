@@ -1,0 +1,26 @@
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(28, 43, 48, 0.42);
+}
+
+.modal-card {
+  width: min(440px, 100%);
+  background: var(--card);
+  color: var(--ink);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 22px;
+}
+
+.modal-card h2 {
+  margin-bottom: 8px;
+}
+
+.list-plain {
+  margin-top: 8px;
+}

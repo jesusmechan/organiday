@@ -1,0 +1,341 @@
+<section class="page-head">
+  <div>
+    <p class="kicker">{{ draft.mode === 'replace' ? 'Editar ciclo' : 'Nuevo ciclo' }}</p>
+    <h1>{{ draft.mode === 'replace' ? 'Actualizar horario' : 'Nuevo horario' }}</h1>
+    <p class="muted">{{ draft.mode === 'replace' ? 'Ajusta fechas, trabajo, clases o ejercicio y guarda. El ciclo se mantiene.' : 'Define fechas, trabajo, clases y ejercicio. La app arma comidas, traslados, sueño y tareas.' }}</p>
+  </div>
+  <a routerLink="/ciclo" class="btn ghost">Volver a ciclos</a>
+</section>
+
+<form class="form builder" autocomplete="off" (submit)="$event.preventDefault(); requestGenerate()">
+  <div class="autofill-trap" aria-hidden="true">
+    <input class="autofill-bait" type="text" name="mpp-user" autocomplete="username" tabindex="-1">
+    <input class="autofill-bait" type="password" name="mpp-pass" autocomplete="new-password" tabindex="-1">
+  </div>
+
+  <div class="builder-col">
+    <article class="card">
+      <div class="section-head">
+        <div class="section-title">
+          <span class="step">1</span>
+          <h2>Fechas del ciclo</h2>
+        </div>
+      </div>
+      <label class="field">
+        <span>Nombre</span>
+        <input autocomplete="off" [(ngModel)]="draft.name" name="cycleLabel" placeholder="Ciclo 2027-I" required>
+      </label>
+      <div class="control-row">
+        <label class="field">
+          <span>Desde</span>
+          <input autocomplete="off" type="date" [(ngModel)]="draft.startDate" name="startDate" required (change)="suggest()">
+        </label>
+        <label class="field">
+          <span>Hasta</span>
+          <input autocomplete="off" type="date" [(ngModel)]="draft.endDate" name="endDate" required>
+        </label>
+      </div>
+      <div class="mode-row">
+        <label class="choice">
+          <input autocomplete="off" type="radio" name="mode" [(ngModel)]="draft.mode" value="new">
+          <span>Ciclo nuevo</span>
+        </label>
+        <label class="choice">
+          <input autocomplete="off" type="radio" name="mode" [(ngModel)]="draft.mode" value="replace" [disabled]="!viewed()">
+          <span>Actualizar {{ viewed()?.name || 'este ciclo' }}</span>
+        </label>
+      </div>
+      @if (viewed() && draft.mode === 'new') {
+        <div class="week-actions">
+          <button class="btn ghost small" type="button" (click)="copyFromViewed()">Copiar {{ viewed()?.name }}</button>
+        </div>
+      }
+      <p class="muted" style="margin-top: 12px">Días protegidos: el motor no mete estudio extra ahí.</p>
+      <div class="week-picks">
+        @for (day of days; track day) {
+          <button type="button" class="week-pick" [class.on]="isProtected(day)" (click)="toggleProtected(day)">
+            {{ shorts[day] }}
+          </button>
+        }
+      </div>
+    </article>
+
+    <article class="card">
+      <div class="section-head">
+        <div class="section-title">
+          <span class="step">2</span>
+          <h2>Trabajo</h2>
+        </div>
+        <span class="count">{{ workDays() }} días{{ workRange() ? ' · ' + workRange() : '' }}</span>
+      </div>
+      <p class="muted">Marca los días. Abajo solo aparecen las horas de esos.</p>
+      <div class="week-picks">
+        @for (day of draft.work; track day.dayOfWeek) {
+          <button
+            type="button"
+            class="week-pick"
+            [class.on]="day.enabled"
+            (click)="toggleWork(day)"
+          >
+            {{ shorts[day.dayOfWeek] }}
+          </button>
+        }
+      </div>
+      <div class="week-actions">
+        <button class="btn ghost small" type="button" (click)="setWorkWeekdays()">Lun–Vie</button>
+        <button class="btn ghost small" type="button" (click)="clearWork()" [disabled]="workDays() === 0">Quitar todos</button>
+        @if (workDays() > 1 && workHoursDiffer()) {
+          <button class="btn ghost small" type="button" (click)="applyFirstWorkHours()">
+            Copiar {{ labels[firstWorkDay()!.dayOfWeek] }} al resto
+          </button>
+        }
+      </div>
+      @if (workDays() === 0) {
+        <p class="empty">Ningún día marcado. El resto de la semana queda libre.</p>
+      } @else {
+        <div class="work-rows">
+          <div class="work-row work-cols" aria-hidden="true">
+            <span></span>
+            <div class="times">
+              <span>Inicio</span>
+              <span>Fin</span>
+            </div>
+          </div>
+          @for (day of draft.work; track day.dayOfWeek) {
+            @if (day.enabled) {
+              <div class="work-row">
+                <b>{{ labels[day.dayOfWeek] }}</b>
+                <div class="times">
+                  <input
+                    autocomplete="off"
+                    type="time"
+                    [(ngModel)]="day.start"
+                    [name]="'work-s-' + day.dayOfWeek"
+                    [attr.aria-label]="'Inicio ' + labels[day.dayOfWeek]"
+                  >
+                  <input
+                    autocomplete="off"
+                    type="time"
+                    [(ngModel)]="day.end"
+                    [name]="'work-e-' + day.dayOfWeek"
+                    [attr.aria-label]="'Fin ' + labels[day.dayOfWeek]"
+                  >
+                </div>
+              </div>
+            }
+          }
+        </div>
+      }
+    </article>
+
+    <article class="card">
+      <div class="section-head">
+        <div class="section-title">
+          <span class="step">3</span>
+          <h2>Cursos y clases</h2>
+        </div>
+        <button class="btn small" type="button" (click)="addCourse()">Agregar curso</button>
+      </div>
+      <p class="muted">Presencial lleva aula. Virtual en vivo lleva horario. Virtual 24/7 no fija hora.</p>
+      @if (draft.courses.length === 0) {
+        <p class="empty">Todavía no hay cursos. Agrégalos según la matrícula.</p>
+      }
+      <div class="course-list">
+        @for (course of draft.courses; track $index) {
+          <div class="course" [class.open]="openCourse() === $index">
+            <div class="course-head">
+              <button type="button" class="course-toggle" (click)="toggleCourse($index)">
+                <span class="chevron" aria-hidden="true"></span>
+                <span class="course-copy">
+                  <b>{{ course.name.trim() || 'Curso ' + ($index + 1) }}</b>
+                  <span>{{ modality[course.modality] }} · {{ courseSummary(course) }}</span>
+                </span>
+              </button>
+              <button class="btn ghost small" type="button" (click)="removeCourse($index)">Quitar</button>
+            </div>
+            @if (openCourse() === $index) {
+              <div class="course-body">
+                <div class="control-row course-meta">
+                  <input autocomplete="off" [(ngModel)]="course.name" [name]="'cname-' + $index" placeholder="Nombre del curso" required>
+                  <input autocomplete="off" [(ngModel)]="course.shortName" [name]="'cshort-' + $index" placeholder="Corto">
+                  <select [(ngModel)]="course.modality" [name]="'cmod-' + $index">
+                    <option value="presencial">Presencial</option>
+                    <option value="virtual-live">Virtual en vivo</option>
+                    <option value="virtual-247">Virtual 24/7</option>
+                  </select>
+                </div>
+                @if (course.modality === 'virtual-247') {
+                  <p class="muted">Sin horario fijo. Entra cuando tengas un hueco.</p>
+                } @else {
+                  <div class="session-table">
+                    @for (session of course.sessions; track $index) {
+                      <div class="session-row">
+                        <label class="field">
+                          <span>Día</span>
+                          <select
+                            [ngModel]="asDay(session.dayOfWeek)"
+                            (ngModelChange)="session.dayOfWeek = asDay($event)"
+                            [name]="'sday-' + courseIndex(course) + '-' + $index"
+                          >
+                            @for (d of days; track d) {
+                              <option [ngValue]="d">{{ labels[d] }}</option>
+                            }
+                          </select>
+                        </label>
+                        <div class="times">
+                          <label class="field">
+                            <span>Inicio</span>
+                            <input autocomplete="off" type="time" [(ngModel)]="session.start" [name]="'ss-' + courseIndex(course) + '-' + $index">
+                          </label>
+                          <label class="field">
+                            <span>Fin</span>
+                            <input autocomplete="off" type="time" [(ngModel)]="session.end" [name]="'se-' + courseIndex(course) + '-' + $index">
+                          </label>
+                        </div>
+                        <label class="field loc">
+                          <span>{{ course.modality === 'virtual-live' ? 'Plataforma' : 'Aula' }}</span>
+                          <input
+                            autocomplete="off"
+                            [(ngModel)]="session.location"
+                            [name]="'sloc-' + courseIndex(course) + '-' + $index"
+                            [placeholder]="course.modality === 'virtual-live' ? 'Meet / Zoom' : 'A-203'"
+                          >
+                        </label>
+                        <button class="btn ghost small session-remove" type="button" (click)="removeClass(course, $index)">Quitar</button>
+                      </div>
+                    }
+                  </div>
+                  <button class="btn ghost small" type="button" (click)="addClass(course)">Agregar sesión</button>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </article>
+  </div>
+
+  <div class="builder-col">
+    <article class="card">
+      <div class="section-head">
+        <div class="section-title">
+          <span class="step">4</span>
+          <h2>Ejercicio</h2>
+        </div>
+        <span class="count">{{ exerciseCount() }} días{{ exerciseRange() ? ' · ' + exerciseRange() : '' }}</span>
+      </div>
+      <p class="muted">Marca 3 o 4 días. Abajo solo aparecen esas sesiones.</p>
+      <div class="week-picks">
+        @for (ex of draft.exercises; track ex.dayOfWeek) {
+          <button
+            type="button"
+            class="week-pick"
+            [class.on]="ex.enabled"
+            (click)="toggleExercise(ex)"
+          >
+            {{ shorts[ex.dayOfWeek] }}
+          </button>
+        }
+      </div>
+      <div class="week-actions">
+        <button class="btn ghost small" type="button" (click)="clearExercise()" [disabled]="exerciseCount() === 0">Quitar todos</button>
+        @if (exerciseCount() > 1 && exerciseDetailsDiffer()) {
+          <button class="btn ghost small" type="button" (click)="applyFirstExercise()">
+            Copiar {{ labels[firstExercise()!.dayOfWeek] }} al resto
+          </button>
+        }
+      </div>
+      @if (exerciseCount() === 0) {
+        <p class="empty">Ningún día marcado. El motor no mete ejercicio.</p>
+      } @else {
+        <div class="ex-rows">
+          <div class="ex-row ex-cols" aria-hidden="true">
+            <span></span>
+            <span>Inicio</span>
+            <span>Fin</span>
+            <span>Tipo</span>
+            <span>Nivel</span>
+          </div>
+          @for (ex of draft.exercises; track ex.dayOfWeek) {
+            @if (ex.enabled) {
+              <div class="ex-row">
+                <b>{{ labels[ex.dayOfWeek] }}</b>
+                <input
+                  autocomplete="off"
+                  type="time"
+                  [(ngModel)]="ex.start"
+                  [name]="'exs-' + ex.dayOfWeek"
+                  [attr.aria-label]="'Inicio ' + labels[ex.dayOfWeek]"
+                >
+                <input
+                  autocomplete="off"
+                  type="time"
+                  [(ngModel)]="ex.end"
+                  [name]="'exe-' + ex.dayOfWeek"
+                  [attr.aria-label]="'Fin ' + labels[ex.dayOfWeek]"
+                >
+                <select [(ngModel)]="ex.type" [name]="'extype-' + ex.dayOfWeek" [attr.aria-label]="'Tipo ' + labels[ex.dayOfWeek]">
+                  <option value="workout">Gym</option>
+                  <option value="walk">Caminata</option>
+                  <option value="run">Trote</option>
+                  <option value="recovery">Recuperación</option>
+                </select>
+                <select [(ngModel)]="ex.intensity" [name]="'exint-' + ex.dayOfWeek" [attr.aria-label]="'Nivel ' + labels[ex.dayOfWeek]">
+                  <option value="light">Suave</option>
+                  <option value="moderate">Media</option>
+                  <option value="full">Completa</option>
+                </select>
+                <input
+                  class="ex-name"
+                  autocomplete="off"
+                  [(ngModel)]="ex.title"
+                  [name]="'ext-' + ex.dayOfWeek"
+                  placeholder="Nombre"
+                  [attr.aria-label]="'Nombre ' + labels[ex.dayOfWeek]"
+                >
+              </div>
+            }
+          }
+        </div>
+      }
+    </article>
+
+    <article class="card">
+      <div class="section-head">
+        <div class="section-title">
+          <span class="step">5</span>
+          <h2>Derivados</h2>
+        </div>
+      </div>
+      <div class="derive-grid">
+        <label class="choice"><input autocomplete="off" type="checkbox" [(ngModel)]="draft.deriveMeals" name="meals"><span>Comidas</span></label>
+        <label class="choice"><input autocomplete="off" type="checkbox" [(ngModel)]="draft.deriveCommute" name="commute"><span>Traslados</span></label>
+        <label class="choice"><input autocomplete="off" type="checkbox" [(ngModel)]="draft.deriveSleep" name="sleep"><span>Sueño</span></label>
+        <label class="choice"><input autocomplete="off" type="checkbox" [(ngModel)]="draft.createCourseTasks" name="tasks"><span>Tareas de estudio</span></label>
+      </div>
+    </article>
+
+    @if (conflicts().length) {
+      <div class="warn-banner">
+        <b>Hay cruces de horario</b>
+        <ul class="list-plain" style="margin-top: 8px; color: inherit">
+          @for (item of conflicts(); track item) {
+            <li>{{ item }}</li>
+          }
+        </ul>
+      </div>
+    }
+
+    <article class="card hero">
+      <div>
+        <p class="kicker">Listo para guardar</p>
+        <h2>{{ draft.name || 'Sin nombre' }}</h2>
+        <p class="muted">{{ draft.startDate }} → {{ draft.endDate }}</p>
+        <p>{{ workDays() }} trabajo · {{ draft.courses.length }} cursos · {{ classCount() }} clases · {{ exerciseCount() }} ejercicios</p>
+      </div>
+      <button class="btn" type="submit" [disabled]="saving() || conflicts().length > 0">
+        {{ saving() ? 'Guardando…' : draft.mode === 'replace' ? 'Guardar cambios' : 'Generar horario' }}
+      </button>
+    </article>
+  </div>
+</form>

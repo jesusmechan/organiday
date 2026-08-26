@@ -1,0 +1,98 @@
+<section class="page-head">
+  <div>
+    <p class="kicker">3–4 sesiones, no 7 días</p>
+    <h1>Ejercicio</h1>
+    <p class="muted">Marca la sesión cuando la hagas. Si no pudiste, deja el motivo.</p>
+  </div>
+</section>
+
+@if (!term()) {
+  <article class="card hero">
+    <div>
+      <p class="kicker">Empezar</p>
+      <h2>Aún no hay sesiones de ejercicio</h2>
+      <p class="muted">Cuando generes un ciclo y marques días de entrenamiento, aparecerán aquí.</p>
+    </div>
+    <a routerLink="/nuevo-horario" class="btn">Generar horario</a>
+  </article>
+} @else {
+<div class="stat-grid" style="margin-bottom: 16px">
+  <div class="stat">
+    <b>{{ stats().plannedHours }} h</b>
+    <span>Planificadas esta semana</span>
+  </div>
+  <div class="stat">
+    <b>{{ stats().completedHours }} h</b>
+    <span>Realizadas</span>
+  </div>
+  <div class="stat">
+    <b>{{ stats().compliance }}%</b>
+    <span>Cumplimiento</span>
+  </div>
+</div>
+
+<div class="grid grid-2">
+  <article class="card">
+    <h2>Sesiones de la semana</h2>
+    @for (session of sessions(); track session.id) {
+      <div class="task">
+        <div class="task-main">
+          <button
+            type="button"
+            class="check"
+            [class.on]="logFor(session.id, session.dayOfWeek)?.completed"
+            [class.locked]="!canLog(session.id, session.dayOfWeek)"
+            [disabled]="!canLog(session.id, session.dayOfWeek)"
+            [attr.title]="canLog(session.id, session.dayOfWeek) ? null : 'Aún no es la hora (' + session.start + ')'"
+            (click)="done(session.id, session.dayOfWeek)"
+            [attr.aria-label]="'Marcar ' + session.title"
+          >
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <div>
+            <b>{{ days[session.dayOfWeek] }} · {{ session.start }}–{{ session.end }}</b>
+            <div class="muted">{{ session.title }} · {{ intensity(session.intensity) }}</div>
+          </div>
+          @if (logFor(session.id, session.dayOfWeek)?.skipped) {
+            <span class="badge heavy">No se hizo</span>
+          }
+        </div>
+        <div class="row">
+          <button class="btn ghost small" (click)="skipFor.set(session.id)">Hoy no</button>
+        </div>
+        @if (skipFor() === session.id) {
+          <div class="reason-grid">
+            @for (reason of reasons; track reason.id) {
+              <button (click)="skip(session.id, session.dayOfWeek, reason.id)">{{ reason.icon }} {{ reason.label }}</button>
+            }
+          </div>
+        }
+      </div>
+    } @empty {
+      <p class="empty">Este ciclo no tiene sesiones de ejercicio.</p>
+    }
+  </article>
+
+  <article class="card">
+    <h2>Cómo va el hábito</h2>
+    <p>Histórico: {{ history().completedHours }} h hechas de {{ history().plannedHours }} h planificadas ({{ history().compliance }}%).</p>
+    @if (stats().bestDay !== null) {
+      <p>Mejor día: <b>{{ days[stats().bestDay!] }}</b></p>
+    }
+    @if (stats().worstDay !== null && stats().worstDay !== stats().bestDay) {
+      <p>Día con más incumplimientos: <b>{{ days[stats().worstDay!] }}</b></p>
+    }
+    <h3 style="margin-top:18px">Si no entrenaste, ¿por qué?</h3>
+    <ul class="list-plain">
+      <li>😴 Cansado: {{ stats().reasonCounts.tired }}</li>
+      <li>💼 Trabajo: {{ stats().reasonCounts.work }}</li>
+      <li>🎓 Universidad: {{ stats().reasonCounts.university }}</li>
+      <li>🏠 Personal: {{ stats().reasonCounts.personal }}</li>
+      <li>❌ Sin ganas: {{ stats().reasonCounts['no-motivation'] }}</li>
+    </ul>
+    <p class="muted" style="margin-top:14px">3–4 sesiones por semana suelen bastar. Los demás días pueden ser descanso.</p>
+  </article>
+</div>
+}

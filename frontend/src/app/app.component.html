@@ -1,0 +1,85 @@
+@if (!auth.user()) {
+  <main class="page guest">
+    <router-outlet />
+  </main>
+} @else {
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="mark" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+            <path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div>
+          <small>Checklist diaria</small>
+          <strong>Mi Planificador</strong>
+        </div>
+      </div>
+      <div class="top-actions">
+        @if (term()) {
+          <a routerLink="/ciclo" class="term-chip">
+            <b>{{ term()?.name }}</b>
+            <span>{{ formatRange(term()!.startDate, term()!.endDate) }}</span>
+          </a>
+        } @else {
+          <a routerLink="/nuevo-horario" class="term-chip">
+            <b>Crear horario</b>
+            <span>Empieza un ciclo</span>
+          </a>
+        }
+        <button class="btn ghost small" type="button" (click)="logout()">Salir</button>
+      </div>
+    </header>
+
+    @if (offline()) {
+      <div class="install-bar">
+        <div>
+          <b>Sin conexión con el servidor</b>
+          <div class="muted">El frontend necesita el backend en el puerto 8000.</div>
+        </div>
+        <button class="btn small" (click)="retry()">Reintentar</button>
+      </div>
+    }
+
+    @if (showInstall()) {
+      <div class="install-bar">
+        <div>
+          <b>Instálala en tu celular</b>
+          <div class="muted">Ábrela como una app desde la pantalla de inicio.</div>
+        </div>
+        <div class="row">
+          <button class="btn small" (click)="install()">Instalar</button>
+          <button class="btn ghost small" (click)="dismissInstall()">Ahora no</button>
+        </div>
+      </div>
+    }
+
+    <main class="page">
+      <router-outlet />
+    </main>
+
+    <nav class="nav">
+      <a routerLink="/hoy" routerLinkActive="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 1.5"/></svg>
+        Hoy
+      </a>
+      <a routerLink="/semana" routerLinkActive="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+        Semana
+      </a>
+      <a routerLink="/tareas" routerLinkActive="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 6h12M9 12h12M9 18h12"/><path d="M4 6h.01M4 12h.01M4 18h.01"/></svg>
+        Tareas
+      </a>
+      <a routerLink="/ejercicio" routerLinkActive="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 12h3l2-6 4 12 2-6h5"/></svg>
+        Ejercicio
+      </a>
+      <a routerLink="/semana-analisis" routerLinkActive="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V5M4 19h16"/><path d="M8 15v-4M12 15V8M16 15v-7"/></svg>
+        Análisis
+      </a>
+    </nav>
+  </div>
+}

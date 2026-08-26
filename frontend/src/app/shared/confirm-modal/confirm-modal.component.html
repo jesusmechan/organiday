@@ -1,0 +1,23 @@
+<div class="modal-backdrop" (click)="busy() ? null : cancelled.emit()">
+  <div class="modal-card" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+    <p class="kicker">{{ kicker() }}</p>
+    <h2>{{ title() }}</h2>
+    @if (message()) {
+      <p class="muted">{{ message() }}</p>
+    }
+    @if (items().length) {
+      <p class="muted" style="margin-top: 12px">Se eliminará:</p>
+      <ul class="list-plain">
+        @for (item of items(); track item) {
+          <li>{{ item }}</li>
+        }
+      </ul>
+    }
+    <div class="actions" style="margin-top: 18px">
+      <button class="btn ghost" type="button" [disabled]="busy()" (click)="cancelled.emit()">Cancelar</button>
+      <button class="btn" [class.danger]="danger()" type="button" [disabled]="busy()" (click)="confirmed.emit()">
+        {{ busy() ? 'Procesando…' : confirmLabel() }}
+      </button>
+    </div>
+  </div>
+</div>

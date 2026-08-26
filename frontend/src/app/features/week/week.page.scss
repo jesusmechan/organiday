@@ -1,0 +1,222 @@
+:host { display: block; }
+
+.week-layout {
+  display: grid;
+  gap: 16px;
+}
+
+.week-side {
+  display: grid;
+  gap: 16px;
+  align-content: start;
+}
+
+.cal-nav {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.cal-nav h3 {
+  margin: 0;
+  text-align: center;
+  font-size: 18px;
+}
+
+.cal-nav .btn {
+  width: 36px;
+  padding: 0;
+  font-size: 20px;
+}
+
+.cal-weekdays,
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.cal-weekdays {
+  margin-bottom: 6px;
+}
+
+.cal-weekdays span {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--muted);
+}
+
+.cal-day {
+  position: relative;
+  min-height: 40px;
+  padding: 5px 2px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--ink);
+}
+
+.cal-day.week:not(.active) {
+  background: var(--paper);
+}
+
+.cal-day b {
+  display: block;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.cal-day.out {
+  opacity: 0.34;
+}
+
+.cal-day.off {
+  color: var(--muted);
+}
+
+.cal-day.today:not(.active) {
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+
+.cal-day.active {
+  background: var(--accent);
+  color: #fff;
+}
+
+.marks {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 4px;
+  display: flex;
+  justify-content: center;
+  gap: 3px;
+}
+
+.marks i {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+.cal-day.active .marks i {
+  background: #fff;
+}
+
+.marks i.ex {
+  background: var(--danger);
+}
+
+.cal-day.active .marks i.ex {
+  background: #ffd4d0;
+}
+
+.cal-legend {
+  margin: 12px 0 0;
+  font-size: 12px;
+}
+
+.gap-list {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.gap-list li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: var(--paper);
+  font-size: 13px;
+}
+
+.gap-list span {
+  color: var(--muted);
+}
+
+.day-panel {
+  min-width: 0;
+}
+
+.day-strip {
+  margin-bottom: 16px;
+}
+
+.day-chip .day-num {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 20px;
+  line-height: 1;
+  margin-bottom: 2px;
+}
+
+.day-chip.today:not(.active) {
+  box-shadow: inset 0 0 0 1.5px var(--accent);
+}
+
+.day-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.day-head .kicker {
+  margin-bottom: 4px;
+}
+
+.compact-stats {
+  margin-bottom: 14px;
+}
+
+.warn-banner,
+.due-box,
+.day-actions,
+.day-panel .form {
+  margin-bottom: 14px;
+}
+
+.due-box {
+  padding: 12px;
+  border-radius: 14px;
+  background: var(--paper);
+}
+
+.due-box p {
+  margin: 6px 0 0;
+}
+
+.day-panel .timeline {
+  margin-top: 4px;
+}
+
+@media (max-width: 839px) {
+  .day-panel {
+    order: -1;
+  }
+}
+
+@media (min-width: 840px) {
+  .week-layout {
+    grid-template-columns: minmax(260px, 0.82fr) minmax(0, 1.18fr);
+    align-items: start;
+  }
+
+  .week-side {
+    position: sticky;
+    top: 84px;
+  }
+
+  .cal-day {
+    min-height: 44px;
+  }
+}

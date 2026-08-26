@@ -1,0 +1,188 @@
+<section class="page-head">
+  <div>
+    <p class="kicker">Hoy</p>
+    <h1>{{ dayName() }}</h1>
+    <p class="muted">{{ longDate }}</p>
+    @if (term()) {
+      <p class="muted">{{ term()?.name }} · {{ formatRange(term()!.startDate, term()!.endDate) }}</p>
+    }
+  </div>
+  @if (term()) {
+    <span class="badge" [class.heavy]="load() === 'heavy'" [class.light]="load() === 'light'">
+      {{ loadLabel() }}
+    </span>
+  }
+</section>
+
+@if (!term()) {
+  <article class="card hero">
+    <div>
+      <p class="kicker">Empezar</p>
+      <h2>Aún no hay horario</h2>
+      <p class="muted">Crea tu primer ciclo con fechas, trabajo, cursos y ejercicio. La app arranca vacía a propósito.</p>
+    </div>
+    <a routerLink="/nuevo-horario" class="btn">Generar horario</a>
+  </article>
+} @else {
+<article class="card hero" style="margin-bottom: 16px">
+  <div class="ring" [style.--p]="progress().percent">
+    <span>{{ progress().percent }}%</span>
+  </div>
+  <div>
+    <p class="kicker">Tu checklist</p>
+    <h2>{{ progress().done }} de {{ progress().total }} hechos</h2>
+    <p class="muted">Toca un bloque para marcarlo. El sueño no cuenta en el porcentaje.</p>
+  </div>
+</article>
+
+@if (term() && !live()) {
+  <div class="warn-banner" style="margin-bottom: 16px">
+    <b>Estás viendo {{ term()?.name }}, no el ciclo vigente.</b>
+    <p>Este horario vale del {{ formatRange(term()!.startDate, term()!.endDate) }}. Cambia de ciclo arriba si quieres el actual.</p>
+  </div>
+}
+
+@if (exception()) {
+  <div class="warn-banner" style="margin-bottom: 16px">
+    <b>{{ kinds[exception()!.kind] }} · {{ exception()?.title }}</b>
+    <p>Hoy hay una excepción. El horario semanal se ajusta a esta fecha.</p>
+  </div>
+}
+
+@if (routine()?.overloaded) {
+  <div class="warn-banner" style="margin-bottom: 16px">
+    <b>Tu {{ dayName() }} está demasiado cargado.</b>
+    <p>{{ routine()?.overloadReason }}</p>
+  </div>
+}
+
+@if (due().tasks.length || due().topics.length) {
+  <article class="card" style="margin-bottom: 16px">
+    <h3>Vence hoy</h3>
+    @for (task of due().tasks; track task.id) {
+      <p>{{ task.title }}</p>
+    }
+    @for (topic of due().topics; track topic.id) {
+      <p>{{ topicLabels[topic.kind] }} · {{ topic.title }}</p>
+    }
+  </article>
+}
+
+<div class="grid grid-2">
+  <article class="card">
+    <h2>Línea del día</h2>
+    <p class="muted">Marca lo que ya hiciste, cuando llegue la hora. Desmárcalo si te equivocaste.</p>
+    <div class="timeline" style="margin-top: 14px">
+      @for (block of blocks(); track block.id) {
+        <div class="timeline-item">
+          <button
+            type="button"
+            class="block"
+            [class]="block.category"
+            [class.current]="current()?.id === block.id && !done(block)"
+            [class.done]="done(block)"
+            [class.locked]="!canCheck(block)"
+            [attr.title]="canCheck(block) ? null : 'Aún no es la hora (' + block.start + ')'"
+            (click)="toggle(block)"
+          >
+            <span class="check" [class.on]="done(block)" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="time">{{ block.start }}<br>{{ block.end }}</span>
+            <span>
+              <span class="title">{{ block.title }}</span>
+              <span class="meta" style="display:block">
+                {{ kind(block) }}
+                @if (block.location) { · {{ block.location }} }
+              </span>
+              @if (!canCheck(block)) {
+                <span class="meta" style="display:block">Aún no es la hora</span>
+              }
+              @if (block.notes) {
+                <span class="meta" style="display:block">{{ block.notes }}</span>
+              }
+            </span>
+          </button>
+          <button class="btn ghost small" type="button" (click)="edit(block)">Editar</button>
+        </div>
+      } @empty {
+        <p class="empty" style="margin-top: 14px">Este día no tiene bloques todavía.</p>
+      }
+    </div>
+  </article>
+
+  <div class="grid">
+    <article class="card">
+      <h3>Ahora</h3>
+      @if (current()) {
+        <p><b>{{ current()?.title }}</b></p>
+        <p class="muted">{{ current()?.start }} – {{ current()?.end }}</p>
+        <button class="btn small" style="margin-top:10px" [disabled]="!canCheck(current()!)" (click)="toggle(current()!)">
+          {{ done(current()!) ? 'Desmarcar' : 'Marcar como hecho' }}
+        </button>
+      } @else {
+        <p class="empty">No hay un bloque activo en este momento.</p>
+      }
+      @if (next()) {
+        <p class="muted" style="margin-top: 10px">Siguiente: {{ next()?.title }} a las {{ next()?.start }}</p>
+      }
+      @if (gap()) {
+        <p style="margin-top: 12px"><b>Hueco siguiente</b></p>
+        <p class="muted">{{ gap()?.start }} – {{ gap()?.end }} · {{ gap()?.minutes }} min libres</p>
+      }
+    </article>
+
+    @if (session()) {
+      <article class="card">
+        <span class="badge exercise">Ejercicio de hoy</span>
+        <h3 style="margin-top: 10px">{{ session()?.title }}</h3>
+        <p class="muted">{{ session()?.start }} – {{ session()?.end }} · Una hora basta.</p>
+
+        @if (exerciseLog()?.completed) {
+          <p class="badge ok" style="margin-top:10px">Hecho</p>
+        } @else if (exerciseLog()?.skipped) {
+          <p class="muted">Hoy no se hizo. Quedó registrado para ajustar la semana.</p>
+        } @else {
+          <div class="row" style="margin-top: 12px">
+            <button class="btn" [disabled]="!canLogExercise()" (click)="completeExercise()">Lo hice</button>
+            <button class="btn ghost" (click)="showReasons.set(true)">Hoy no pude</button>
+          </div>
+        }
+
+        @if (showReasons()) {
+          <div class="reason-grid" style="margin-top: 12px">
+            @for (reason of reasons; track reason.id) {
+              <button (click)="skipExercise(reason.id)">{{ reason.icon }} {{ reason.label }}</button>
+            }
+          </div>
+        }
+      </article>
+    }
+
+    <article class="card">
+      <h3>Estudio sugerido hoy</h3>
+      @if (todaySuggestions().length === 0) {
+        <p class="empty">Hoy no te estoy metiendo estudio extra. Protege el descanso.</p>
+      } @else {
+        @for (item of todaySuggestions(); track item.taskId + item.start) {
+          <p><b>{{ item.start }}–{{ item.end }}</b> · {{ item.taskTitle }}</p>
+          <p class="muted">{{ item.reason }}</p>
+        }
+      }
+    </article>
+  </div>
+</div>
+}
+
+@if (editing()) {
+  <app-block-editor
+    [block]="editing()"
+    [dateLabel]="date"
+    (saved)="saveEditor($event)"
+    (skipped)="skipToday()"
+    (deleted)="removeBlock()"
+    (cancelled)="closeEditor()"
+  />
+}

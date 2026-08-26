@@ -1,0 +1,13 @@
+---
+description: Registrar cada cambio en CAMBIOS.md
+alwaysApply: true
+---
+
+# Bitácora de cambios
+
+Cada vez que implementes, corrijas o rediseñes algo en este proyecto, **actualiza** `CAMBIOS.md` en la raíz.
+
+- Añade una entrada con fecha (YYYY-MM-DD) al inicio de la sección **Historial**.
+- Resume en viñetas qué se hizo y dónde se usa (pantalla o API).
+- No borres entradas anteriores.
+- Si el cambio es solo de estilo, igual regístralo de forma breve.

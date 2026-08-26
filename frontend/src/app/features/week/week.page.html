@@ -1,0 +1,220 @@
+<section class="page-head">
+  <div>
+    <p class="kicker">Calendario</p>
+    <h1>Semana</h1>
+    @if (term()) {
+      <p class="muted">{{ longDate() }}</p>
+    } @else {
+      <p class="muted">Elige un día y marca lo que ya hiciste. El sueño no entra en el porcentaje.</p>
+    }
+  </div>
+  @if (term()) {
+    <div class="actions">
+      <button class="btn ghost" type="button" (click)="goToday()">Hoy</button>
+      <button class="btn ghost" type="button" (click)="exportWeek()">Exportar .ics</button>
+    </div>
+  }
+</section>
+
+@if (!term()) {
+  <article class="card hero">
+    <div>
+      <p class="kicker">Empezar</p>
+      <h2>Aún no hay semana que mostrar</h2>
+      <p class="muted">Cuando generes un ciclo, aquí verás el calendario para marcarlo día a día.</p>
+    </div>
+    <a routerLink="/nuevo-horario" class="btn">Generar horario</a>
+  </article>
+} @else {
+<div class="week-layout">
+  <div class="week-side">
+    <article class="card cal-card">
+      <div class="cal-nav">
+        <button class="btn ghost small" type="button" (click)="shiftMonth(-1)" aria-label="Mes anterior">‹</button>
+        <h3>{{ monthLabel() }}</h3>
+        <button class="btn ghost small" type="button" (click)="shiftMonth(1)" aria-label="Mes siguiente">›</button>
+      </div>
+      <div class="cal-weekdays">
+        @for (day of days; track day) {
+          <span>{{ short[day] }}</span>
+        }
+      </div>
+      <div class="cal-grid">
+        @for (cell of cells(); track cell.date) {
+          <button
+            type="button"
+            class="cal-day"
+            [class.out]="!cell.inMonth"
+            [class.off]="!inTerm(cell.date)"
+            [class.week]="inWeek(cell.date)"
+            [class.today]="cell.date === today"
+            [class.active]="selectedDate() === cell.date"
+            (click)="selectDate(cell.date)"
+          >
+            <b>{{ cell.day }}</b>
+            @if (hasDue(cell.date) || hasException(cell.date)) {
+              <span class="marks">
+                @if (hasDue(cell.date)) { <i class="due"></i> }
+                @if (hasException(cell.date)) { <i class="ex"></i> }
+              </span>
+            }
+          </button>
+        }
+      </div>
+      <p class="cal-legend muted">Punto azul: entrega o examen. Rojo: excepción.</p>
+    </article>
+
+    <article class="card gaps-card">
+      <h3>Huecos del día</h3>
+      @if (free().length === 0) {
+        <p class="empty">No hay huecos de 45 minutos o más.</p>
+      } @else {
+        <ul class="gap-list">
+          @for (slot of free(); track slot.start) {
+            <li>
+              <b>{{ slot.start }}–{{ slot.end }}</b>
+              <span>{{ slot.minutes }} min</span>
+            </li>
+          }
+        </ul>
+      }
+    </article>
+  </div>
+
+  <article class="card day-panel">
+    <div class="day-strip">
+      @for (day of days; track day) {
+        <button
+          class="day-chip"
+          [class.active]="selectedDate() === dateOf(day)"
+          [class.today]="dateOf(day) === today"
+          [class.heavy]="isHeavy(day)"
+          (click)="select(day)"
+        >
+          <span class="day-num">{{ dateNum(day) }}</span>
+          <b>{{ short[day] }}</b>
+          <div class="dots">{{ dayProgress(day).done }}/{{ dayProgress(day).total }}</div>
+        </button>
+      }
+    </div>
+
+    <div class="day-head">
+      <div>
+        <p class="kicker">Horario</p>
+        <h2>{{ longDate() }}</h2>
+      </div>
+      <span class="badge" [class.ok]="progress().percent === 100" [class.heavy]="routine()?.overloaded">
+        {{ progress().done }}/{{ progress().total }}
+      </span>
+    </div>
+
+    <div class="stat-grid compact-stats">
+      <div class="stat">
+        <b>{{ hours(selected(), 'work') }} h</b>
+        <span>Trabajo</span>
+      </div>
+      <div class="stat">
+        <b>{{ hours(selected(), 'university') }} h</b>
+        <span>Universidad</span>
+      </div>
+      <div class="stat">
+        <b>{{ hours(selected(), 'exercise') }} h</b>
+        <span>Ejercicio</span>
+      </div>
+    </div>
+
+    @if (exception()) {
+      <div class="warn-banner">
+        <b>{{ kinds[exception()!.kind] }} · {{ exception()?.title }}</b>
+        <p>Esta fecha no usa el molde semanal tal cual.</p>
+        <button class="btn ghost small" type="button" (click)="removeException()">Quitar excepción</button>
+      </div>
+    }
+
+    @if (due().tasks.length || due().topics.length) {
+      <div class="due-box">
+        <b>{{ selectedDate() === today ? 'Vence hoy' : 'Vence este día' }}</b>
+        @for (task of due().tasks; track task.id) {
+          <p>{{ task.title }}</p>
+        }
+        @for (topic of due().topics; track topic.id) {
+          <p>{{ topicLabels[topic.kind] }} · {{ topic.title }}</p>
+        }
+      </div>
+    }
+
+    <div class="actions day-actions">
+      <button class="btn ghost small" type="button" (click)="startCreate()">Agregar bloque</button>
+      <button class="btn ghost small" type="button" (click)="showException.set(!showException())">Excepción del día</button>
+    </div>
+
+    @if (showException()) {
+      <form class="form" autocomplete="off" (submit)="$event.preventDefault(); addException()">
+        <div class="autofill-trap" aria-hidden="true">
+          <input class="autofill-bait" type="text" name="mpp-user" autocomplete="username" tabindex="-1">
+          <input class="autofill-bait" type="password" name="mpp-pass" autocomplete="new-password" tabindex="-1">
+        </div>
+        <select [(ngModel)]="exKind" name="exKind">
+          <option value="holiday">Feriado</option>
+          <option value="off-work">Sin trabajo</option>
+          <option value="meeting">Junta</option>
+          <option value="exam">Examen</option>
+          <option value="custom">Otro</option>
+        </select>
+        <input autocomplete="off" [(ngModel)]="exTitle" name="exTitle" placeholder="Título" required>
+        <div class="control-row">
+          <input autocomplete="off" type="time" [(ngModel)]="exStart" name="exStart">
+          <input autocomplete="off" type="time" [(ngModel)]="exEnd" name="exEnd">
+        </div>
+        <button class="btn small" type="submit">Guardar excepción</button>
+      </form>
+    }
+
+    <div class="timeline">
+      @for (block of blocks(); track block.id) {
+        <div class="timeline-item">
+          <button
+            type="button"
+            class="block"
+            [class]="block.category"
+            [class.done]="done(block)"
+            [class.locked]="!canCheck(block)"
+            [attr.title]="canCheck(block) ? null : 'Aún no es la hora (' + block.start + ')'"
+            (click)="toggle(block)"
+          >
+            <span class="check" [class.on]="done(block)" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none">
+                <path d="M20 6 9 17l-5-5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="time">{{ block.start }}<br>{{ block.end }}</span>
+            <span>
+              <span class="title">{{ block.title }}</span>
+              <span class="meta" style="display:block">
+                {{ kind(block) }}
+                @if (block.location) { · {{ block.location }} }
+                @if (block.date) { · solo este día }
+              </span>
+            </span>
+          </button>
+          <button class="btn ghost small" type="button" (click)="edit(block)">Editar</button>
+        </div>
+      } @empty {
+        <p class="empty">Este día no tiene bloques todavía.</p>
+      }
+    </div>
+  </article>
+</div>
+}
+
+@if (editing() || creating()) {
+  <app-block-editor
+    [block]="editing()"
+    [creating]="creating()"
+    [dateLabel]="selectedDate()"
+    (saved)="saveEditor($event)"
+    (skipped)="skipToday()"
+    (deleted)="removeBlock()"
+    (cancelled)="closeEditor()"
+  />
+}
