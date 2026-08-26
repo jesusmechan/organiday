@@ -1,6 +1,6 @@
 # Mi Planificador Personal — API
 
-FastAPI para ciclos, horarios, cursos, tareas y ejercicio. En local puede usar PostgreSQL o SQLite.
+FastAPI para ciclos, horarios, cursos, tareas y ejercicio. Usa **PostgreSQL**.
 
 ## Arranque
 
@@ -99,6 +99,6 @@ Los JSON usan camelCase, igual que la PWA (`startDate`, `termId`, `dayOfWeek`).
 
 ## Base de datos
 
-**Local:** PostgreSQL `organi_day` (usuario `organi`) vía `backend/.env`. Sin `.env`, SQLite en `backend/data/planner.db`.
+**Local:** PostgreSQL `organi_day` (usuario `organi`) vía `backend/.env`.
 
-**Render:** PostgreSQL. El servicio lee `DATABASE_URL` (`postgres://…` se convierte sola).
+**Render:** PostgreSQL `organiday-db`. El Web Service debe tener `DATABASE_URL` (Internal Database URL). `postgres://…` se convierte sola.

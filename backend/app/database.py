@@ -1,5 +1,3 @@
-from pathlib import Path
-
 from sqlalchemy import create_engine, inspect, text
 from sqlalchemy.engine.url import make_url
 from sqlalchemy.orm import DeclarativeBase, sessionmaker
@@ -7,30 +5,19 @@ from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from .config import settings
 
 
-def _prepare_sqlite() -> None:
-    url = make_url(settings.database_url)
-    if not url.drivername.startswith("sqlite"):
-        return
-    database = url.database
-    if database and database != ":memory:":
-        Path(database).parent.mkdir(parents=True, exist_ok=True)
-
-
 def _engine_kwargs() -> dict:
-    options: dict = {"pool_pre_ping": True}
-    if settings.is_sqlite:
-        options["connect_args"] = {"check_same_thread": False}
-        return options
-    options["pool_size"] = 5
-    options["max_overflow"] = 10
-    options["pool_recycle"] = 300
+    options: dict = {
+        "pool_pre_ping": True,
+        "pool_size": 5,
+        "max_overflow": 10,
+        "pool_recycle": 300,
+    }
     parsed = make_url(settings.database_url)
     if parsed.port == 6543:
         options["connect_args"] = {"prepare_threshold": None}
     return options
 
 
-_prepare_sqlite()
 engine = create_engine(settings.database_url, **_engine_kwargs())
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 

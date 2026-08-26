@@ -1,12 +1,12 @@
 # Organi Day — qué hay implementado
 
-Planificador personal (PWA Angular + FastAPI/SQLite) para trabajo, universidad, estudio y ejercicio. La interfaz está en español. Arranca vacío: tú cargas los datos. La guía completa está en [`FUNCIONALIDAD.md`](FUNCIONALIDAD.md).
+Planificador personal (PWA Angular + FastAPI + PostgreSQL) para trabajo, universidad, estudio y ejercicio. La interfaz está en español. Arranca vacío: tú cargas los datos. La guía completa está en [`FUNCIONALIDAD.md`](FUNCIONALIDAD.md).
 
 **Cómo correrlo**
 
 - Frontend: `npm start` en `frontend/` → http://localhost:4200/
 - Backend (Git Bash, desde `backend/`): `source .venv/Scripts/activate` y `python -m uvicorn app.main:app --reload --port 8000`
-- En local: PostgreSQL (`backend/.env`) o SQLite si no hay `.env`
+- En local: PostgreSQL (`backend/.env`, base `organi_day`)
 - API: `http://127.0.0.1:8000/api`
 - Docker (Render): `docker build -t organi-day .` y `docker run -p 10000:10000 -e SECRET_KEY=cambia-esto organi-day`. En Render enlaza una PostgreSQL (`DATABASE_URL`).
 
@@ -56,7 +56,7 @@ Planificador personal (PWA Angular + FastAPI/SQLite) para trabajo, universidad, 
 ### Sistema
 
 - Cuentas: registro e inicio de sesión. Access token (15 min) y refresh token (30 días, rotado). Cada usuario ve solo sus ciclos.
-- En local: PostgreSQL (`backend/.env`, base `organi_day` en pgAdmin) o SQLite si no hay `.env`. En Render: PostgreSQL (`DATABASE_URL`).
+- En local y en Render: solo PostgreSQL (`DATABASE_URL`).
 - Estado vacío al inicio (`createEmptyState`).
 - Aviso si el API no responde.
 - Autocompletado desactivado en formularios.
@@ -66,6 +66,10 @@ Planificador personal (PWA Angular + FastAPI/SQLite) para trabajo, universidad, 
 ---
 
 ## Historial
+
+### 2026-08-26 — Solo PostgreSQL
+
+- La API ya no acepta SQLite. Hace falta `DATABASE_URL` (local: `backend/.env`; Render: enlazar `organiday-db`).
 
 ### 2026-08-26 — Sesión al recargar
 

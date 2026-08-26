@@ -13,11 +13,11 @@
 #
 # Variables:
 #   SECRET_KEY     obligatorio en producción
-#   DATABASE_URL   Postgres de Render (postgres://… se adapta sola)
+#   DATABASE_URL   obligatorio (Postgres). En Render: Internal Database URL de organiday-db
 #   CORS_ORIGINS   opcional; el front y la API son el mismo origen
 #   PORT           lo asigna Render
 #
-# En local, sin DATABASE_URL, sigue usando SQLite.
+# Sin DATABASE_URL la API no arranca. No se usa SQLite.
 
 # --- build de la PWA ---
 FROM node:22-bookworm-slim AS frontend

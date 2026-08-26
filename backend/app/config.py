@@ -27,7 +27,7 @@ class Settings(BaseSettings):
     )
 
     app_name: str = "Mi Planificador Personal"
-    database_url: str = "sqlite:///./data/planner.db"
+    database_url: str
     cors_origins: str = "http://localhost:4200,http://127.0.0.1:4200"
     secret_key: str = "organi-day-dev-change-me"
     access_token_minutes: int = 15
@@ -37,16 +37,18 @@ class Settings(BaseSettings):
     @classmethod
     def _database_url(cls, value: object) -> str:
         if not value:
-            return "sqlite:///./data/planner.db"
-        return normalize_database_url(str(value))
+            raise ValueError(
+                "Falta DATABASE_URL. En local copia backend/.env.example a backend/.env; "
+                "en Render enlaza organiday-db al Web Service."
+            )
+        url = normalize_database_url(str(value))
+        if url.startswith("sqlite"):
+            raise ValueError("Este proyecto solo usa PostgreSQL.")
+        return url
 
     @property
     def origins(self) -> list[str]:
         return [item.strip() for item in self.cors_origins.split(",") if item.strip()]
-
-    @property
-    def is_sqlite(self) -> bool:
-        return self.database_url.startswith("sqlite")
 
 
 settings = Settings()

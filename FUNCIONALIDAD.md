@@ -2,7 +2,7 @@
 
 Planificador personal para **trabajo, universidad, estudio y ejercicio**. La interfaz está en español. Arranca vacío: tú cargas los datos.
 
-Es una **PWA** (Angular 19) con **API FastAPI**. En local usa **SQLite**; en Render, **PostgreSQL**. En local el frontend habla con `http://127.0.0.1:8000/api`. En producción (Docker / Render) la PWA y la API van en el mismo origen (`/api`). Si el servidor no responde, la barra superior avisa y puedes reintentar.
+Es una **PWA** (Angular 19) con **API FastAPI** y **PostgreSQL**. En local el frontend habla con `http://127.0.0.1:8000/api`. En producción (Docker / Render) la PWA y la API van en el mismo origen (`/api`). Si el servidor no responde, la barra superior avisa y puedes reintentar.
 
 ---
 
@@ -16,7 +16,7 @@ python -m uvicorn app.main:app --reload --port 8000
 
 - API: http://127.0.0.1:8000/api/health
 - Swagger: http://127.0.0.1:8000/docs
-- Base de datos por defecto: SQLite `backend/data/planner.db`. Con `backend/.env` usa PostgreSQL local (`organi_day`).
+- Base de datos: PostgreSQL. En local `organi_day` (`backend/.env`); en Render `organiday-db` (`DATABASE_URL`).
 
 **Frontend** (desde `frontend/`):
 
@@ -338,7 +338,7 @@ frontend/          Angular 19 (PWA, rutas lazy)
   src/app/core       store, API, motor de insights, modelos
   src/app/shared     editor de bloque, modal de confirmación
 
-backend/           FastAPI + SQLAlchemy + SQLite
+backend/           FastAPI + SQLAlchemy + PostgreSQL
   app/routers/api.py   endpoints
   app/generator.py     arma bloques y rutinas
   app/services.py      persistencia e import
