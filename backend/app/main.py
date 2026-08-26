@@ -1,4 +1,5 @@
 from contextlib import asynccontextmanager
+from mimetypes import guess_type
 from os import getenv
 from pathlib import Path
 
@@ -13,6 +14,21 @@ from .routers.api import router
 from .routers.auth import router as auth_router
 
 STATIC_DIR = Path(getenv("STATIC_DIR", str(Path(__file__).resolve().parent.parent / "static")))
+RESERVED_SPA = {"api", "docs", "redoc", "openapi.json"}
+STATIC_TYPES = {
+    ".js": "application/javascript",
+    ".mjs": "application/javascript",
+    ".css": "text/css",
+    ".html": "text/html",
+    ".json": "application/json",
+    ".webmanifest": "application/manifest+json",
+    ".svg": "image/svg+xml",
+    ".ico": "image/x-icon",
+    ".png": "image/png",
+    ".woff": "font/woff",
+    ".woff2": "font/woff2",
+    ".map": "application/json",
+}
 
 OPENAPI_TAGS = [
     {"name": "Cuenta", "description": "Registro, inicio de sesión y perfil."},
@@ -70,8 +86,13 @@ app.include_router(router, prefix="/api")
 def _spa_index() -> FileResponse | RedirectResponse:
     index = STATIC_DIR / "index.html"
     if index.is_file():
-        return FileResponse(index)
+        return FileResponse(index, media_type="text/html")
     return RedirectResponse("/docs")
+
+
+def _static_response(path: Path) -> FileResponse:
+    media = STATIC_TYPES.get(path.suffix.lower()) or guess_type(path.name)[0]
+    return FileResponse(path, media_type=media)
 
 
 @app.get("/", include_in_schema=False)
@@ -81,9 +102,11 @@ def root():
 
 @app.get("/{full_path:path}", include_in_schema=False)
 def spa(full_path: str):
-    if not (STATIC_DIR / "index.html").is_file():
+    first = full_path.split("/", 1)[0]
+    if first in RESERVED_SPA:
         raise HTTPException(status_code=404, detail="Not Found")
-    if full_path == "api" or full_path.startswith("api/"):
+    index = STATIC_DIR / "index.html"
+    if not index.is_file():
         raise HTTPException(status_code=404, detail="Not Found")
     candidate = (STATIC_DIR / full_path).resolve()
     try:
@@ -91,5 +114,7 @@ def spa(full_path: str):
     except ValueError as error:
         raise HTTPException(status_code=404, detail="Not Found") from error
     if candidate.is_file():
-        return FileResponse(candidate)
-    return FileResponse(STATIC_DIR / "index.html")
+        return _static_response(candidate)
+    if Path(full_path).suffix:
+        raise HTTPException(status_code=404, detail="Not Found")
+    return FileResponse(index, media_type="text/html")

@@ -67,6 +67,10 @@ Planificador personal (PWA Angular + FastAPI/SQLite) para trabajo, universidad, 
 
 ## Historial
 
+### 2026-08-26 — PWA en Render (JS/CSS)
+
+- Los archivos `.js` y `.css` de la PWA se sirven con el tipo MIME correcto. Si no, el navegador deja la pantalla en blanco aunque `/api/health` funcione.
+
 ### 2026-08-26 — PostgreSQL local (pgAdmin)
 
 - El backend lee `backend/.env` (`DATABASE_URL`). Usuario `organi` / base `organi_day` para ver las tablas en pgAdmin.

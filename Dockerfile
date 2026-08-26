@@ -37,7 +37,10 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     STATIC_DIR=/app/static
 
 COPY backend/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends media-types \
+    && rm -rf /var/lib/apt/lists/* \
+    && pip install --no-cache-dir -r requirements.txt
 
 COPY backend/app ./app
 COPY --from=frontend /web/dist/organi-day/browser ./static
