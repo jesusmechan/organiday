@@ -124,9 +124,9 @@ form.form { gap: 16px; }
 }
 
 .work-row .times {
-  width: max-content;
+  width: 100%;
   max-width: 100%;
-  grid-template-columns: 8.6rem 8.6rem;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   align-items: center;
 }
 
@@ -149,7 +149,7 @@ form.form { gap: 16px; }
 
 .ex-row {
   display: grid;
-  grid-template-columns: 5.6rem 8.6rem 8.6rem minmax(6.4rem, 1fr) minmax(6.4rem, 1fr);
+  grid-template-columns: 5.6rem minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr);
   gap: 8px;
   align-items: center;
   padding: 6px 4px;
@@ -195,7 +195,7 @@ form.form { gap: 16px; }
 
 .times {
   display: grid;
-  grid-template-columns: minmax(8.6rem, 1fr) minmax(8.6rem, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 8px;
   min-width: 0;
 }
@@ -292,7 +292,7 @@ form.form { gap: 16px; }
 }
 
 .session-row {
-  grid-template-columns: minmax(8.5rem, 1fr) minmax(17.4rem, auto);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   padding: 10px;
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -350,7 +350,7 @@ form.form { gap: 16px; }
 
   .work-row .times {
     width: 100%;
-    grid-template-columns: minmax(8.6rem, 1fr) minmax(8.6rem, 1fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   }
 
   .ex-row,

@@ -67,6 +67,10 @@ Planificador personal (PWA Angular + FastAPI + PostgreSQL) para trabajo, univers
 
 ## Historial
 
+### 2026-08-26 — Horas en iPhone
+
+- Inicio/Fin (`type=time` y `date`) ya no tienen ancho mínimo fijo. En iPhone 12 mini caben en Trabajo, Cursos y Ejercicio.
+
 ### 2026-08-26 — Solo PostgreSQL
 
 - La API ya no acepta SQLite. Hace falta `DATABASE_URL` (local: `backend/.env`; Render: enlazar `organiday-db`).

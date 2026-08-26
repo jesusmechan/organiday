@@ -311,9 +311,10 @@ a {
 
 .control-row {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
   gap: 8px;
   align-items: end;
+  min-width: 0;
 }
 
 .actions {
@@ -682,30 +683,29 @@ a {
   padding-block: 0;
 }
 
-.form input:not([type='checkbox']):not([type='radio'])[type='time'] {
-  min-width: 8.6rem;
-  padding-inline: 10px;
-  font-variant-numeric: tabular-nums;
-}
-
+.form input:not([type='checkbox']):not([type='radio'])[type='time'],
 .form input:not([type='checkbox']):not([type='radio'])[type='date'] {
-  min-width: 10.5rem;
+  min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  padding-inline: 8px;
+  font-variant-numeric: tabular-nums;
 }
 
 .form input[type='date']::-webkit-datetime-edit,
 .form input[type='time']::-webkit-datetime-edit {
-  display: inline-flex;
-  align-items: center;
-  min-width: max-content;
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
   height: 100%;
   padding: 0;
-  overflow: visible;
 }
 
 .form input[type='date']::-webkit-calendar-picker-indicator,
 .form input[type='time']::-webkit-calendar-picker-indicator {
   width: 16px;
-  margin: 0 0 0 4px;
+  margin: 0 0 0 2px;
   cursor: pointer;
   flex-shrink: 0;
 }
